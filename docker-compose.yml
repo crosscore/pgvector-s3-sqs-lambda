@@ -1,0 +1,59 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
+      - PGVECTOR_DB_NAME=${PGVECTOR_DB_NAME}
+      - PGVECTOR_DB_USER=${PGVECTOR_DB_USER}
+      - PGVECTOR_DB_PASSWORD=${PGVECTOR_DB_PASSWORD}
+      - PGVECTOR_DB_HOST=pgvector_db
+      - PGVECTOR_DB_PORT=5432
+      - S3_DB_URL=http://s3_db:9000
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - s3_db
+      - pgvector_db
+    networks:
+      - app_network
+
+  s3_db:
+    build: ./s3_db
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - s3_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - app_network
+
+  pgvector_db:
+    build: ./pgvector_db
+    environment:
+      - POSTGRES_DB=${PGVECTOR_DB_NAME}
+      - POSTGRES_USER=${PGVECTOR_DB_USER}
+      - POSTGRES_PASSWORD=${PGVECTOR_DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  # MinIOのデータを永続化するためのvolume
+  s3_data:
+  # PostgreSQLのデータを永続化するためのvolume
+  pg_data:
