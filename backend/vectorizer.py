@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from io import BytesIO
 from pypdf import PdfReader
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
 import logging
 from config import *
 from langchain.text_splitter import CharacterTextSplitter
@@ -15,11 +15,18 @@ logger = logging.getLogger(__name__)
 
 logger.info(f"Initializing vectorizer with S3_DB_URL: {S3_DB_URL}")
 
-client = AzureOpenAI(
-    azure_endpoint=AZURE_OPENAI_ENDPOINT,
-    api_key=AZURE_OPENAI_API_KEY,
-    api_version=AZURE_OPENAI_API_VERSION
-)
+ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "false").lower() == "true"
+
+if ENABLE_OPENAI:
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    logger.info("Using OpenAI API for embeddings")
+else:
+    client = AzureOpenAI(
+        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+        api_key=AZURE_OPENAI_API_KEY,
+        api_version=AZURE_OPENAI_API_VERSION
+    )
+    logger.info("Using Azure OpenAI API for embeddings")
 
 def normalize_vector(vector):
     return vector / np.linalg.norm(vector)
@@ -54,10 +61,16 @@ def extract_text_from_pdf(content):
         return []
 
 def create_embedding(text):
-    response = client.embeddings.create(
-        input=text,
-        model=AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
-    )
+    if ENABLE_OPENAI:
+        response = client.embeddings.create(
+            input=text,
+            model="text-embedding-ada-002"
+        )
+    else:
+        response = client.embeddings.create(
+            input=text,
+            model=AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
+        )
     return response.data[0].embedding
 
 def split_text_into_chunks(text):

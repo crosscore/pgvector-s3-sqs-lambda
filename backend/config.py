@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# OpenAIの利用可否
+ENABLE_OPENAI = "true"
+AZURE_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 # Azure OpenAI設定
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
