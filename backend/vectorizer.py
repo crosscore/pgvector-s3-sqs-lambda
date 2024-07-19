@@ -8,6 +8,7 @@ from pypdf import PdfReader
 from openai import AzureOpenAI
 import logging
 from config import *
+from langchain.text_splitter import CharacterTextSplitter
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -59,6 +60,15 @@ def create_embedding(text):
     )
     return response.data[0].embedding
 
+def split_text_into_chunks(text):
+    text_splitter = CharacterTextSplitter(
+        separator=SEPARATOR,
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+    )
+    chunks = text_splitter.split_text(text)
+    return chunks
+
 def process_pdf(file_name):
     content = fetch_pdf_content(file_name)
     if content is None:
@@ -71,7 +81,7 @@ def process_pdf(file_name):
 
     processed_data = []
     for page, text in texts:
-        chunks = [text[i:i+CHUNK_SIZE] for i in range(0, len(text), CHUNK_SIZE-CHUNK_OVERLAP)]
+        chunks = split_text_into_chunks(text)
         for chunk_num, chunk in enumerate(chunks, start=1):
             vector = create_embedding(chunk)
             processed_data.append({
