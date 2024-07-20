@@ -17,7 +17,7 @@ services:
       - PGVECTOR_DB_PORT=5432
       - S3_DB_URL=http://s3_db:9000
       - PYTHONPATH=/app:${PYTHONPATH:-}
-      - RUN_MODE=all
+      - RUN_MODE=test_pdf_download
     volumes:
       - ./backend:/app
     depends_on:
