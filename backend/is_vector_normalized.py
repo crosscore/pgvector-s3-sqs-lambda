@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "true").lower() == "true"
+AZURE_OPENAI_ENDPOINT =os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
 
 if ENABLE_OPENAI:
     client = OpenAI(
@@ -15,9 +19,9 @@ if ENABLE_OPENAI:
     print("Using OpenAI")
 else:
     client = AzureOpenAI(
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-        api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+        api_key=AZURE_OPENAI_API_KEY,
+        api_version=AZURE_OPENAI_API_VERSION
     )
     print("Using Azure OpenAI")
 
@@ -30,7 +34,7 @@ def get_embedding(text):
     else:
         response = client.embeddings.create(
             input=text,
-            deployment_id=os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT_ID")
+            model=AZURE_OPENAI_EMBEDDING_DEPLOYMENT
         )
     vector = response.data[0].embedding
     return vector
