@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "true").lower() == "true"
-AZURE_OPENAI_ENDPOINT =os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
-AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
 
 if ENABLE_OPENAI:
     client = OpenAI(
@@ -21,7 +21,7 @@ else:
     client = AzureOpenAI(
         azure_endpoint=AZURE_OPENAI_ENDPOINT,
         api_key=AZURE_OPENAI_API_KEY,
-        api_version=AZURE_OPENAI_API_VERSION
+        api_version=AZURE_OPENAI_API_VERSION,
     )
     print("Using Azure OpenAI")
 
@@ -34,7 +34,7 @@ def get_embedding(text):
     else:
         response = client.embeddings.create(
             input=text,
-            model=AZURE_OPENAI_EMBEDDING_DEPLOYMENT
+            model=AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
         )
     vector = response.data[0].embedding
     return vector
@@ -51,9 +51,9 @@ def cosine_distance(a, b):
     return 1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 def time_function(func, *args):
-    start_time = time.time()
+    start_time = time.perf_counter()
     result = func(*args)
-    end_time = time.time()
+    end_time = time.perf_counter()
     return result, end_time - start_time
 
 # メイン処理
@@ -74,19 +74,19 @@ print(f"ベクトル2の長さ: {np.linalg.norm(vector2)}")
 # 負の内積の計算と時間測定
 neg_inner_prod, neg_inner_time = time_function(negative_inner_product, vector1, vector2)
 print(f"負の内積: {neg_inner_prod}")
-print(f"負の内積の計算時間: {neg_inner_time:.6f} 秒")
+print(f"負の内積の計算時間: {neg_inner_time:.9f} 秒")
 
 # コサイン距離の計算と時間測定
 cos_dist, cos_time = time_function(cosine_distance, vector1, vector2)
 print(f"コサイン距離: {cos_dist}")
-print(f"コサイン距離の計算時間: {cos_time:.6f} 秒")
+print(f"コサイン距離の計算時間: {cos_time:.9f} 秒")
 
 # 時間の比較
 if neg_inner_time < cos_time:
-    time_diff = (cos_time - neg_inner_time) / neg_inner_time * 100
+    time_diff = (cos_time - neg_inner_time) / max(neg_inner_time, 1e-9) * 100
     print(f"負の内積の計算は、コサイン距離の計算より {time_diff:.2f}% 速いです")
 else:
-    time_diff = (neg_inner_time - cos_time) / cos_time * 100
+    time_diff = (neg_inner_time - cos_time) / max(cos_time, 1e-9) * 100
     print(f"コサイン距離の計算は、負の内積の計算より {time_diff:.2f}% 速いです")
 
 # 結果の解釈
