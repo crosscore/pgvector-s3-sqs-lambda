@@ -2,13 +2,15 @@ services:
   backend:
     build: ./backend
     environment:
+      - ENABLE_OPENAI=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
       - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
       - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT}
       - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
-      - PGVECTOR_DB_NAME=${PGVECTOR_DB_NAME}
-      - PGVECTOR_DB_USER=${PGVECTOR_DB_USER}
-      - PGVECTOR_DB_PASSWORD=${PGVECTOR_DB_PASSWORD}
+      - PGVECTOR_DB_NAME=pgvector_db
+      - PGVECTOR_DB_USER=user
+      - PGVECTOR_DB_PASSWORD=pass
       - PGVECTOR_DB_HOST=pgvector_db
       - PGVECTOR_DB_PORT=5432
       - S3_DB_URL=http://s3_db:9000
@@ -25,8 +27,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_ROOT_USER=user
+      - MINIO_ROOT_PASSWORD=pass
     volumes:
       - s3_data:/data
     ports:
@@ -38,9 +40,9 @@ services:
   pgvector_db:
     build: ./pgvector_db
     environment:
-      - POSTGRES_DB=${PGVECTOR_DB_NAME}
-      - POSTGRES_USER=${PGVECTOR_DB_USER}
-      - POSTGRES_PASSWORD=${PGVECTOR_DB_PASSWORD}
+      - POSTGRES_DB=pgvector_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:

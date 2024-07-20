@@ -12,10 +12,7 @@ from langchain.text_splitter import CharacterTextSplitter
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
-
 logger.info(f"Initializing vectorizer with S3_DB_URL: {S3_DB_URL}")
-
-ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "false").lower() == "true"
 
 if ENABLE_OPENAI:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
