@@ -62,14 +62,18 @@ text2 = "god"
 
 vector1 = get_embedding(text1)
 vector2 = get_embedding(text2)
+vector3 = [0.6, 0.8]
 
 normalized1 = is_normalized(vector1)
 normalized2 = is_normalized(vector2)
+normalized3 = is_normalized(vector3)
 
 print(f"ベクトル1が正規化されているか: {normalized1}")
 print(f"ベクトル2が正規化されているか: {normalized2}")
+print(f"ベクトル3が正規化されているか: {normalized3}")
 print(f"ベクトル1の長さ: {np.linalg.norm(vector1)}")
 print(f"ベクトル2の長さ: {np.linalg.norm(vector2)}")
+print(f"ベクトル3の長さ: {np.linalg.norm(vector3)}")
 
 # 負の内積の計算と時間測定
 neg_inner_prod, neg_inner_time = time_function(negative_inner_product, vector1, vector2)

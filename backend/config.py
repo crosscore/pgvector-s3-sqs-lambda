@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# OpenAIの利用可否
+# OpenAI
 ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "true").lower() == "true"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Azure OpenAI設定
+# Azure OpenAI
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
@@ -34,6 +34,7 @@ PGVECTOR_DB_PORT = int(os.getenv("PGVECTOR_DB_PORT", 5432))
 INDEX_TYPE = os.getenv("INDEX_TYPE", "hnsw").lower()
 HNSW_M = int(os.getenv("HNSW_M", "16"))
 HNSW_EF_CONSTRUCTION = int(os.getenv("HNSW_EF_CONSTRUCTION", "256"))
+HNSW_EF_SEARCH = int(os.getenv("HNSW_EF_SEARCH", "200"))
 IVFFLAT_LISTS = int(os.getenv("IVFFLAT_LISTS", "20"))
 IVFFLAT_PROBES = int(os.getenv("IVFFLAT_PROBES", "5"))
 VECTOR_DIMENSIONS = 3072
