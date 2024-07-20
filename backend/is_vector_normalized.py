@@ -15,9 +15,9 @@ if ENABLE_OPENAI:
     print("Using OpenAI")
 else:
     client = AzureOpenAI(
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),
         api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
     )
     print("Using Azure OpenAI")
 
