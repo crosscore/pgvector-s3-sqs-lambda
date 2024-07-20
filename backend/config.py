@@ -21,7 +21,7 @@ SEPARATOR = os.getenv("SEPARATOR", "\n\n")
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", "./data/csv/")
 
 # S3設定
-S3_DB_URL = os.getenv("S3_DB_URL")
+S3_DB_URL = os.getenv("S3_DB_URL", "http://s3_db:9000")
 
 # データベース設定
 PGVECTOR_DB_NAME = os.getenv("PGVECTOR_DB_NAME")
@@ -40,4 +40,5 @@ IVFFLAT_PROBES = int(os.getenv("IVFFLAT_PROBES", "5"))
 VECTOR_DIMENSIONS = 3072
 
 # その他の設定
+RUN_MODE = os.getenv("RUN_MODE", "none")
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))

@@ -1,3 +1,4 @@
+# rag-pgvector/backend/s3_operations.py
 import os
 import requests
 import logging
@@ -7,10 +8,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 PDF_STORAGE_DIR = os.path.join('backend', 'data', 'pdf')
-
-def ensure_pdf_storage_dir():
-    """PDFストレージディレクトリが存在することを確認し、なければ作成する"""
-    os.makedirs(PDF_STORAGE_DIR, exist_ok=True)
 
 def get_pdf_files_from_s3():
     """S3からPDFファイルのリストを取得する"""
@@ -42,7 +39,7 @@ def fetch_and_save_pdf(file_name):
 
 def fetch_all_pdfs_from_s3():
     """S3から全てのPDFファイルを取得し、ローカルに保存する"""
-    ensure_pdf_storage_dir()
+    os.makedirs(PDF_STORAGE_DIR, exist_ok=True)
     pdf_files = get_pdf_files_from_s3()
     saved_files = []
     for file_name in pdf_files:

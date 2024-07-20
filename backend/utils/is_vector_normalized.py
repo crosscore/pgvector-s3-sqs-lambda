@@ -1,16 +1,9 @@
+# rag-pgvector/backend/utils/is_vector_normalized.py
 import os
 import time
 from openai import OpenAI, AzureOpenAI
 import numpy as np
-from dotenv import load_dotenv
-
-load_dotenv()
-
-ENABLE_OPENAI = os.getenv("ENABLE_OPENAI", "true").lower() == "true"
-AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
-AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+from config import *
 
 if ENABLE_OPENAI:
     client = OpenAI(

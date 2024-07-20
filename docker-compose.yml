@@ -1,3 +1,5 @@
+# rag-pgvector/docker-compose.yml
+
 services:
   backend:
     build: ./backend
@@ -14,8 +16,10 @@ services:
       - PGVECTOR_DB_HOST=pgvector_db
       - PGVECTOR_DB_PORT=5432
       - S3_DB_URL=http://s3_db:9000
+      - PYTHONPATH=/app:${PYTHONPATH:-}
+      - RUN_MODE=all
     volumes:
-      - ./data:/app/data
+      - ./backend:/app
     depends_on:
       - s3_db
       - pgvector_db
@@ -30,6 +34,7 @@ services:
       - MINIO_ROOT_USER=user
       - MINIO_ROOT_PASSWORD=pass
     volumes:
+      - ./s3_db:/minio
       - s3_data:/data
     ports:
       - "9000:9000"
@@ -55,7 +60,5 @@ networks:
     driver: bridge
 
 volumes:
-  # MinIOのデータを永続化するためのvolume
   s3_data:
-  # PostgreSQLのデータを永続化するためのvolume
   pg_data:
