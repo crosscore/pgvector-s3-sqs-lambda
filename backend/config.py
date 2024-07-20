@@ -18,7 +18,7 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 15))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
 SEPARATOR = os.getenv("SEPARATOR", "\n\n")
-CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", "./data/csv/pdf")
+CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", "./data/csv/")
 
 # S3設定
 S3_DB_URL = os.getenv("S3_DB_URL")

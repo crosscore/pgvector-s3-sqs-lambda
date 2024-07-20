@@ -28,9 +28,6 @@ else:
     )
     logger.info("Using Azure OpenAI API for embeddings")
 
-def normalize_vector(vector):
-    return vector / np.linalg.norm(vector)
-
 def get_pdf_files_from_s3():
     try:
         response = requests.get(f"{S3_DB_URL}/data/pdf", timeout=10)
@@ -102,7 +99,7 @@ def process_pdf(file_name):
                 'page': page,
                 'chunk_num': chunk_num,
                 'text': chunk,
-                'embedding': normalize_vector(vector).tolist()
+                'embedding': vector.tolist()
             })
 
     logger.info(f"Processed {len(processed_data)} chunks from {file_name}")
@@ -115,7 +112,7 @@ def process_pdf_files():
 
     if not all_processed_data.empty:
         os.makedirs(CSV_OUTPUT_DIR, exist_ok=True)
-        output_file = os.path.join(CSV_OUTPUT_DIR, "pdf_documents_vector_normalized.csv")
+        output_file = os.path.join(CSV_OUTPUT_DIR, "pdf_documents.csv")
         all_processed_data.to_csv(output_file, index=False)
         logger.info(f"All processed data saved to {output_file}")
         return all_processed_data
