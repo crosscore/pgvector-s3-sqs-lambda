@@ -14,8 +14,14 @@ AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
+# AWS
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
+LOCAL_PDF_FOLDER = os.getenv("LOCAL_PDF_FOLDER")
+
 # PDF処理設定
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 15))
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 10))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
 SEPARATOR = os.getenv("SEPARATOR", "\n\n")
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", "./data/csv/")
@@ -40,5 +46,5 @@ IVFFLAT_PROBES = int(os.getenv("IVFFLAT_PROBES", "5"))
 VECTOR_DIMENSIONS = 3072
 
 # その他の設定
-RUN_MODE = os.getenv("RUN_MODE", "none")
+RUN_MODE = os.getenv("RUN_MODE", "test_pdf_download")
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))
