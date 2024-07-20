@@ -14,10 +14,20 @@ AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
-# AWS
+# AWS共通設定
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
+# AWS S3設定
+S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'pdf-bucket')
+PDF_DIRECTORY = os.getenv('PDF_DIRECTORY', 'data/pdf/')
+
+# AWS SQS設定
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
+
+# ローカル環境設定
+USE_LOCAL_S3 = os.getenv('USE_LOCAL_S3', 'true').lower() == 'true'
+S3_DB_URL = os.getenv("S3_DB_URL", "http://s3_db:9000")
 LOCAL_PDF_FOLDER = os.getenv("LOCAL_PDF_FOLDER")
 
 # PDF処理設定
@@ -25,9 +35,6 @@ CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 10))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
 SEPARATOR = os.getenv("SEPARATOR", "\n\n")
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", "./data/csv/")
-
-# S3設定
-S3_DB_URL = os.getenv("S3_DB_URL", "http://s3_db:9000")
 
 # データベース設定
 PGVECTOR_DB_NAME = os.getenv("PGVECTOR_DB_NAME")
