@@ -20,7 +20,7 @@ PGVECTOR_DB_PASSWORD=pass
 PGVECTOR_DB_HOST=pgvector_db
 PGVECTOR_DB_PORT=5432
 
-# vectorizer.py
+# backend/vectorizer/vectorizer.py
 CHUNK_SIZE=10
 CHUNK_OVERLAP=0
 SEPARATOR="\n\n"
