@@ -1,18 +1,15 @@
-# rag-pgvector/backend/vectorizer.py
 import os
-import requests
 import pandas as pd
-import numpy as np
-from io import BytesIO
 from pypdf import PdfReader
 from openai import AzureOpenAI, OpenAI
 import logging
 from config import *
 from langchain.text_splitter import CharacterTextSplitter
+from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
-logger.info(f"Initializing vectorizer with S3_DB_URL: {S3_DB_URL}")
+logger.info("Initializing vectorizer to read from local PDF folder")
 
 if ENABLE_OPENAI:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -25,33 +22,18 @@ else:
     )
     logger.info("Using Azure OpenAI API for embeddings")
 
-def get_pdf_files_from_s3():
-    try:
-        response = requests.get(f"{S3_DB_URL}/data/pdf", timeout=10)
-        response.raise_for_status()
-        files = response.json()
-        valid_files = [file for file in files if file.endswith('.pdf')]
-        logger.info(f"Found {len(valid_files)} PDF files")
-        return valid_files
-    except requests.RequestException as e:
-        logger.error(f"Error fetching PDF files: {str(e)}")
-        return []
+def get_pdf_files_from_local():
+    pdf_files = [f for f in os.listdir(PDF_INPUT_DIR) if f.endswith('.pdf')]
+    logger.info(f"Found {len(pdf_files)} PDF files in {PDF_INPUT_DIR}")
+    return pdf_files
 
-def fetch_pdf_content(file_name):
+def extract_text_from_pdf(file_path):
     try:
-        response = requests.get(f"{S3_DB_URL}/data/pdf/{file_name}", stream=True, timeout=10)
-        response.raise_for_status()
-        return response.content
-    except requests.RequestException as e:
-        logger.error(f"Error fetching PDF file {file_name}: {str(e)}")
-        return None
-
-def extract_text_from_pdf(content):
-    try:
-        pdf = PdfReader(BytesIO(content))
-        return [(str(i+1), page.extract_text()) for i, page in enumerate(pdf.pages)]
+        with open(file_path, 'rb') as file:
+            pdf = PdfReader(file)
+            return [(str(i+1), page.extract_text()) for i, page in enumerate(pdf.pages)]
     except Exception as e:
-        logger.error(f"Error extracting text from PDF: {str(e)}")
+        logger.error(f"Error extracting text from PDF {file_path}: {str(e)}")
         return []
 
 def create_embedding(text):
@@ -65,7 +47,7 @@ def create_embedding(text):
             input=text,
             model=AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
         )
-    return response.data[0].embedding
+    return response
 
 def split_text_into_chunks(text):
     text_splitter = CharacterTextSplitter(
@@ -77,45 +59,45 @@ def split_text_into_chunks(text):
     return chunks
 
 def process_pdf(file_name):
-    content = fetch_pdf_content(file_name)
-    if content is None:
-        return pd.DataFrame()
-
-    texts = extract_text_from_pdf(content)
+    file_path = os.path.join(PDF_INPUT_DIR, file_name)
+    texts = extract_text_from_pdf(file_path)
     if not texts:
         logger.warning(f"No text extracted from PDF file: {file_name}")
-        return pd.DataFrame()
+        return None
 
     processed_data = []
     for page, text in texts:
         chunks = split_text_into_chunks(text)
         for chunk_num, chunk in enumerate(chunks, start=1):
-            vector = create_embedding(chunk)
+            response = create_embedding(chunk)
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             processed_data.append({
                 'file_name': file_name,
                 'page': page,
                 'chunk_num': chunk_num,
                 'text': chunk,
-                'embedding': vector.tolist()
+                'model': response.model,
+                'prompt_tokens': response.usage.prompt_tokens,
+                'total_tokens': response.usage.total_tokens,
+                'timestamp': current_time,
+                'embedding': response.data[0].embedding
             })
 
     logger.info(f"Processed {len(processed_data)} chunks from {file_name}")
     return pd.DataFrame(processed_data)
 
 def process_pdf_files():
-    all_processed_data = pd.concat([process_pdf(file_name)
-                                    for file_name in get_pdf_files_from_s3()],
-                                    ignore_index=True)
+    os.makedirs(CSV_OUTPUT_DIR, exist_ok=True)
 
-    if not all_processed_data.empty:
-        os.makedirs(CSV_OUTPUT_DIR, exist_ok=True)
-        output_file = os.path.join(CSV_OUTPUT_DIR, "pdf_documents.csv")
-        all_processed_data.to_csv(output_file, index=False)
-        logger.info(f"All processed data saved to {output_file}")
-        return all_processed_data
-    else:
-        logger.warning("No data processed.")
-        return None
+    for file_name in get_pdf_files_from_local():
+        processed_data = process_pdf(file_name)
+        if processed_data is not None and not processed_data.empty:
+            csv_file_name = f'{os.path.splitext(file_name)[0]}.csv'
+            output_file = os.path.join(CSV_OUTPUT_DIR, csv_file_name)
+            processed_data.to_csv(output_file, index=False)
+            logger.info(f"Processed data for {file_name} saved to {output_file}")
+        else:
+            logger.warning(f"No data processed for {file_name}")
 
 if __name__ == "__main__":
     process_pdf_files()

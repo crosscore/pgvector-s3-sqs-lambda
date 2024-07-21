@@ -3,21 +3,10 @@
 services:
   backend:
     build: ./backend
+    env_file:
+      - .env
     environment:
-      - ENABLE_OPENAI=true
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
-      - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT}
-      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
-      - PGVECTOR_DB_NAME=pgvector_db
-      - PGVECTOR_DB_USER=user
-      - PGVECTOR_DB_PASSWORD=pass
-      - PGVECTOR_DB_HOST=pgvector_db
-      - PGVECTOR_DB_PORT=5432
-      - S3_DB_URL=http://s3_db:9000
       - PYTHONPATH=/app:${PYTHONPATH:-}
-      - RUN_MODE=test_pdf_download
     volumes:
       - ./backend:/app
     depends_on:
@@ -27,12 +16,8 @@ services:
       - app_network
 
   s3_db:
-    build: ./s3_db
     image: minio/minio
     command: server /data --console-address ":9001"
-    environment:
-      - MINIO_ROOT_USER=user
-      - MINIO_ROOT_PASSWORD=pass
     volumes:
       - ./s3_db:/minio
       - s3_data:/data
@@ -44,10 +29,6 @@ services:
 
   pgvector_db:
     build: ./pgvector_db
-    environment:
-      - POSTGRES_DB=pgvector_db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:

@@ -1,28 +1,55 @@
 # rag-pgvector/backend/pdf_processing/pdf_processor.py
-
 import os
 import json
 import logging
 import boto3
 import pandas as pd
+from urllib.parse import urlparse
 from botocore.exceptions import ClientError
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import CharacterTextSplitter
 from config import *
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 logger = logging.getLogger(__name__)
+
+import boto3
+from botocore.client import Config
 
 class S3Operations:
     def __init__(self, aws_access_key_id, aws_secret_access_key, endpoint_url, use_local_s3=True):
         self.use_local_s3 = use_local_s3
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            endpoint_url=endpoint_url if use_local_s3 else None,
-            region_name='us-east-1' if use_local_s3 else None
-        )
+        logger.info(f"Initializing S3 client with endpoint: {endpoint_url}")
+
+        try:
+            parsed_url = urlparse(endpoint_url)
+            self.s3_client = boto3.client(
+                's3',
+                endpoint_url=f"http://{parsed_url.hostname}:{parsed_url.port}",
+                aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+                config=Config(signature_version='s3v4'),
+                region_name='us-east-1',
+                use_ssl=False,
+                verify=False
+            )
+            logger.info(f"S3 client initialized with endpoint: {endpoint_url}")
+
+            # テスト接続
+            self.s3_client.list_buckets()
+            logger.info("Successfully connected to S3/MinIO")
+        except Exception as e:
+            logger.error(f"Failed to initialize S3 client: {str(e)}")
+            raise
+
+    def list_pdf_files(self, bucket_name, prefix):
+        try:
+            response = self.s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+            pdf_files = [obj['Key'] for obj in response.get('Contents', []) if obj['Key'].lower().endswith('.pdf')]
+            return pdf_files
+        except ClientError as e:
+            logger.error(f"Error listing PDF files: {str(e)}")
+            return []
 
     def download_pdf(self, bucket_name, object_key, local_path):
         try:
@@ -36,7 +63,13 @@ class S3Operations:
 
 class PDFProcessor:
     def __init__(self):
-        self.s3_ops = S3Operations(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_DB_URL)
+        logger.info(f"Initializing PDFProcessor with S3_DB_URL: {S3_DB_URL}")
+        logger.info(f"USE_LOCAL_S3: {USE_LOCAL_S3}")
+        logger.info(f"AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY_ID}")
+        logger.info(f"S3_BUCKET_NAME: {S3_BUCKET_NAME}")
+        logger.info(f"PDF_DIRECTORY: {PDF_DIRECTORY}")
+
+        self.s3_ops = S3Operations(MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_ENDPOINT, use_local_s3=USE_LOCAL_S3)
         self.sqs_client = boto3.client('sqs',
             endpoint_url=S3_DB_URL if USE_LOCAL_S3 else None,
             aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -156,7 +189,13 @@ class PDFProcessor:
     def test_pdf_download(self):
         logger.info(f"Initializing S3 operations for PDF download test (Using {'local s3_db' if USE_LOCAL_S3 else 'AWS S3'})")
 
-        for pdf_file in TEST_PDF_FILES:
+        pdf_files = self.s3_ops.list_pdf_files(S3_BUCKET_NAME, PDF_DIRECTORY)
+
+        if not pdf_files:
+            logger.warning(f"No PDF files found in {S3_BUCKET_NAME}/{PDF_DIRECTORY}")
+            return
+
+        for pdf_file in pdf_files:
             logger.info(f"Attempting to download {pdf_file}")
             local_path = self.fetch_pdf_from_s3(S3_BUCKET_NAME, pdf_file, LOCAL_PDF_FOLDER)
 
