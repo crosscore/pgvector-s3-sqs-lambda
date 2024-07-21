@@ -17,6 +17,11 @@ services:
 
   s3_db:
     image: minio/minio
+    env_file:
+      - .env
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
     volumes:
       - ./s3_db:/minio
@@ -29,6 +34,12 @@ services:
 
   pgvector_db:
     build: ./pgvector_db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${PGVECTOR_DB_NAME}
+      - POSTGRES_USER=${PGVECTOR_DB_USER}
+      - POSTGRES_PASSWORD=${PGVECTOR_DB_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:

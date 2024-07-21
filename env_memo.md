@@ -11,6 +11,9 @@ S3_DB_URL=http://s3_db:9000
 MINIO_ENDPOINT=http://s3_db:9000
 MINIO_ACCESS_KEY=minio_access_key
 MINIO_SECRET_KEY=minio_secret_key
+MINIO_ROOT_USER=user
+MINIO_ROOT_PASSWORD=password
+
 AWS_ACCESS_KEY_ID=minio_access_key
 AWS_SECRET_ACCESS_KEY=minio_secret_key
 
