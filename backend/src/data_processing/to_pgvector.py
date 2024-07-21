@@ -1,4 +1,4 @@
-# rag-pgvector/backend/db_operations.py
+# rag-pgvector/backend/src/csv_to_pgvector.py
 import psycopg2
 from psycopg2.extras import execute_batch
 import pandas as pd
