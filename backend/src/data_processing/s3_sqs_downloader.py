@@ -1,4 +1,4 @@
-# rag-pgvector/backend/pdf_processing/pdf_processor.py
+# rag-pgvector/backend/src/data_processing/s3_sqs_downloader.py
 import os
 import json
 import logging

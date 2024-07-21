@@ -37,9 +37,9 @@ S3_DB_URL_NO_SCHEMA = S3_DB_URL.split("://")[-1]
 LOCAL_PDF_FOLDER = os.getenv("LOCAL_PDF_FOLDER")
 
 # PDF処理設定
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 10))
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 0))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
-SEPARATOR = os.getenv("SEPARATOR", "\n\n")
+SEPARATOR = os.getenv("SEPARATOR", "\n")
 PDF_INPUT_DIR = os.getenv("PDF_INPUT_DIR", '/app/data/pdf')
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", '/app/data/csv')
 

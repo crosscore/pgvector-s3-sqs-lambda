@@ -1,4 +1,4 @@
-# rag-pgvector/backend/src/csv_to_pgvector.py
+# rag-pgvector/backend/src/data_processing/csv_to_pgvector.py
 import os
 import pandas as pd
 import psycopg2
@@ -52,7 +52,7 @@ def create_table_and_index(cursor):
     if INDEX_TYPE == "hnsw":
         create_index_query = f"""
         CREATE INDEX IF NOT EXISTS hnsw_document_vectors_embedding_idx ON document_vectors
-        USING hnsw (embedding vector_ip_ops)
+        USING hnsw ((embedding::halfvec(3072)) halfvec_ip_ops)
         WITH (m = {HNSW_M}, ef_construction = {HNSW_EF_CONSTRUCTION});
         """
         cursor.execute(create_index_query)
@@ -60,7 +60,7 @@ def create_table_and_index(cursor):
     elif INDEX_TYPE == "ivfflat":
         create_index_query = f"""
         CREATE INDEX IF NOT EXISTS ivfflat_document_vectors_embedding_idx ON document_vectors
-        USING ivfflat (embedding vector_ip_ops)
+        USING ivfflat ((embedding::halfvec(3072)) halfvec_ip_ops)
         WITH (lists = {IVFFLAT_LISTS});
         """
         cursor.execute(create_index_query)

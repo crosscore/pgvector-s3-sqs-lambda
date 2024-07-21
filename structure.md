@@ -3,9 +3,11 @@ backend/
 └── src/
     ├── data_processing/
     │   ├── __init__.py
-    │   ├── s3_downloader.py
+    │   ├── s3_sqs_downloader.py
     │   ├── vectorizer.py
-    │   └── pgvector_uploader.py
+    │   ├── drop_table.py
+    │   ├── reading_pgvector.py
+    │   └── csv_to_pgvector.py
     ├── api/
     │   ├── __init__.py
     │   └── main.py
