@@ -10,3 +10,4 @@ pypdf
 
 boto3
 psycopg2-binary
+minio

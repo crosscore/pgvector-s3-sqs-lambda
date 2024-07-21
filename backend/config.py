@@ -14,27 +14,16 @@ AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
-# AWS共通設定
+# AWS credentials and region
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
 
-# AWS S3設定
-S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'pdf-bucket')
-PDF_DIRECTORY = os.getenv('PDF_DIRECTORY', 'data/pdf/')
-
-# AWS SQS設定
+# S3 and SQS settings
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL")
-
-# MinIO設定
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "http://s3_db:9000")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio_access_key")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio_secret_key")
-
-# ローカル環境設定
-USE_LOCAL_S3 = os.getenv('USE_LOCAL_S3', 'true').lower() == 'true'
-S3_DB_URL = os.getenv("S3_DB_URL", "http://s3_db:9000")
-S3_DB_URL_NO_SCHEMA = S3_DB_URL.split("://")[-1]
-LOCAL_PDF_FOLDER = os.getenv("LOCAL_PDF_FOLDER")
+LOCAL_UPLOAD_PATH = os.getenv("LOCAL_UPLOAD_PATH")
+LOCAL_DOWNLOAD_PATH = os.getenv("LOCAL_DOWNLOAD_PATH")
 
 # PDF処理設定
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 0))
@@ -43,7 +32,7 @@ SEPARATOR = os.getenv("SEPARATOR", "\n")
 PDF_INPUT_DIR = os.getenv("PDF_INPUT_DIR", '/app/data/pdf')
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", '/app/data/csv')
 
-# データベース設定
+# pgvector_db
 PGVECTOR_DB_NAME = os.getenv("PGVECTOR_DB_NAME")
 PGVECTOR_DB_USER = os.getenv("PGVECTOR_DB_USER")
 PGVECTOR_DB_PASSWORD = os.getenv("PGVECTOR_DB_PASSWORD")

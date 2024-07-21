@@ -10,25 +10,7 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - s3_db
       - pgvector_db
-    networks:
-      - app_network
-
-  s3_db:
-    image: minio/minio
-    env_file:
-      - .env
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    command: server /data --console-address ":9001"
-    volumes:
-      - ./s3_db:/minio
-      - s3_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     networks:
       - app_network
 
@@ -52,5 +34,4 @@ networks:
     driver: bridge
 
 volumes:
-  s3_data:
   pg_data:
