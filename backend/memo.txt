@@ -1,0 +1,12 @@
+langchain==0.2.8
+langchain-community==0.2.7
+numpy==1.24.0
+openai==1.35.14
+openpyxl==3.1.5
+pandas==2.2.2
+
+python-dotenv
+pypdf
+
+boto3
+psycopg2-binary

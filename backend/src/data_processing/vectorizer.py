@@ -6,7 +6,7 @@ from openai import AzureOpenAI, OpenAI
 import logging
 from config import *
 from langchain_text_splitters import CharacterTextSplitter
-from datetime import datetime
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
@@ -52,9 +52,9 @@ def create_embedding(text):
 
 def split_text_into_chunks(text):
     text_splitter = CharacterTextSplitter(
-        chunk_size=0,
-        chunk_overlap=0,
-        separator="\n"
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+        separator=SEPARATOR
     )
     chunks = text_splitter.split_text(text)
     return chunks if chunks else [text]
@@ -79,18 +79,17 @@ def process_pdf(file_name):
         for chunk in chunks:
             if chunk.strip():  # Only process non-empty chunks
                 response = create_embedding(chunk)
-                current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                current_time = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S %Z')
                 processed_data.append({
                     'file_name': file_name,
-                    'file_type': 'pdf',
-                    'page': str(page_num),
-                    'chunk_num': total_chunks,
+                    'document_page': str(page_num),
+                    'chunk_no': total_chunks,
                     'text': chunk,
                     'model': response.model,
                     'prompt_tokens': response.usage.prompt_tokens,
                     'total_tokens': response.usage.total_tokens,
-                    'timestamp': current_time,
-                    'embedding': response.data[0].embedding
+                    'created_date_time': current_time,
+                    'chunk_vector': response.data[0].embedding
                 })
                 total_chunks += 1
 

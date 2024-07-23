@@ -10,9 +10,32 @@ import struct
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
 
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Float
+
+class VECTOR(ARRAY):
+    def __init__(self, dimensions):
+        super(VECTOR, self).__init__(Float, dimensions=dimensions)
+
+# SQLAlchemyに新しい型を登録
+from sqlalchemy.dialects import postgresql
+postgresql.base.ischema_names['vector'] = VECTOR
+
 def get_db_url():
     return f"postgresql://{os.getenv('PGVECTOR_DB_USER')}:{os.getenv('PGVECTOR_DB_PASSWORD')}@" \
             f"{os.getenv('PGVECTOR_DB_HOST')}:{os.getenv('PGVECTOR_DB_PORT')}/{os.getenv('PGVECTOR_DB_NAME')}"
+
+def get_primary_key_info(engine):
+    with engine.connect() as connection:
+        query = text("""
+        SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+        FROM   pg_index i
+        JOIN   pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+        WHERE  i.indrelid = 'document_vectors'::regclass
+        AND    i.indisprimary;
+        """)
+        result = connection.execute(query)
+        return result.fetchall()
 
 def get_table_structure(engine):
     inspector = inspect(engine)
@@ -48,7 +71,7 @@ def get_hnsw_index_settings(engine):
         query = text("""
         SELECT reloptions
         FROM pg_class
-        WHERE relname = 'hnsw_document_vectors_embedding_idx';
+        WHERE relname = 'hnsw_document_vectors_chunk_vector_idx';
         """)
         result = connection.execute(query)
         return result.fetchone()
@@ -58,7 +81,7 @@ def read_vector_data():
         engine = create_engine(get_db_url())
         query = "SELECT * FROM document_vectors"
         df = pd.read_sql(query, engine)
-        df['embedding'] = df['embedding'].apply(ast.literal_eval)
+        df['chunk_vector'] = df['chunk_vector'].apply(ast.literal_eval)
         logger.info(f"データベースから {len(df)} 行のデータを正常に読み込みました。")
         return engine, df
     except Exception as e:
@@ -83,7 +106,7 @@ def log_sample_data(df):
 def verify_vector(engine):
     with engine.connect() as connection:
         query = text("""
-        SELECT embedding::text
+        SELECT chunk_vector::text
         FROM document_vectors
         LIMIT 1;
         """)
@@ -95,7 +118,7 @@ def verify_vector(engine):
 
 def compare_float_representations(df):
     logger.info("\n------ 浮動小数点数の表現比較 ------")
-    vector = df['embedding'][0]
+    vector = df['chunk_vector'][0]
 
     # float32 (単精度浮動小数点数)
     vector_f32 = np.array(vector, dtype=np.float32)
@@ -109,7 +132,7 @@ def compare_float_representations(df):
 
 def check_binary_representation(df):
     logger.info("\n------ バイナリ表現の確認 ------")
-    vector = df['embedding'][0]
+    vector = df['chunk_vector'][0]
 
     # float32のバイナリ表現
     f32_binary = struct.pack('f', vector[0])
@@ -134,6 +157,11 @@ def main():
         for column in table_structure:
             logger.info(f"  - {column['name']}: {column['type']}")
 
+        primary_key_info = get_primary_key_info(engine)
+        logger.info("\n------ プライマリキー情報 ------")
+        for column in primary_key_info:
+            logger.info(f"カラム名: {column.attname}, データ型: {column.data_type}")
+
         logger.info("\n------ インデックス情報 ------")
         index_info = get_index_info(engine)
         for index in index_info:
@@ -153,7 +181,7 @@ def main():
 
         logger.info("\n------ embedding の長さ ------")
         for i in range(min(10, len(df))):
-            logger.info(f"len(df['embedding'][{i}]): {len(df['embedding'][i])}")
+            logger.info(f"len(df['chunk_vector'][{i}]): {len(df['chunk_vector'][i])}")
 
         verify_vector(engine)
         compare_float_representations(df)

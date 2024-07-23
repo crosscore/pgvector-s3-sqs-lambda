@@ -34,16 +34,16 @@ def get_db_connection():
 def create_table_and_index(cursor):
     create_table_query = f"""
     CREATE TABLE IF NOT EXISTS document_vectors (
-        id SERIAL PRIMARY KEY,
+        chunk_id SERIAL PRIMARY KEY,
         file_name TEXT,
-        page INTEGER,
-        chunk_num INTEGER,
+        document_page SMALLINT,
+        chunk_no INTEGER,
         text TEXT,
         model TEXT,
         prompt_tokens INTEGER,
         total_tokens INTEGER,
-        timestamp TIMESTAMP,
-        embedding vector(3072)
+        created_date_time TIMESTAMPTZ,
+        chunk_vector vector(3072)
     );
     """
     cursor.execute(create_table_query)
@@ -51,16 +51,16 @@ def create_table_and_index(cursor):
 
     if INDEX_TYPE == "hnsw":
         create_index_query = f"""
-        CREATE INDEX IF NOT EXISTS hnsw_document_vectors_embedding_idx ON document_vectors
-        USING hnsw ((embedding::halfvec(3072)) halfvec_ip_ops)
+        CREATE INDEX IF NOT EXISTS hnsw_document_vectors_chunk_vector_idx ON document_vectors
+        USING hnsw ((chunk_vector::halfvec(3072)) halfvec_ip_ops)
         WITH (m = {HNSW_M}, ef_construction = {HNSW_EF_CONSTRUCTION});
         """
         cursor.execute(create_index_query)
         logger.info("HNSW index created successfully")
     elif INDEX_TYPE == "ivfflat":
         create_index_query = f"""
-        CREATE INDEX IF NOT EXISTS ivfflat_document_vectors_embedding_idx ON document_vectors
-        USING ivfflat ((embedding::halfvec(3072)) halfvec_ip_ops)
+        CREATE INDEX IF NOT EXISTS ivfflat_document_vectors_chunk_vector_idx ON document_vectors
+        USING ivfflat ((chunk_vector::halfvec(3072)) halfvec_ip_ops)
         WITH (lists = {IVFFLAT_LISTS});
         """
         cursor.execute(create_index_query)
@@ -79,13 +79,13 @@ def process_csv_file(file_path, conn):
 
         insert_query = """
         INSERT INTO document_vectors
-        (file_name, page, chunk_num, text, model, prompt_tokens, total_tokens, timestamp, embedding)
+        (file_name, document_page, chunk_no, text, model, prompt_tokens, total_tokens, created_date_time, chunk_vector)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::vector(3072));
         """
 
         data = []
         for _, row in df.iterrows():
-            embedding = row['embedding']
+            embedding = row['chunk_vector']
             if isinstance(embedding, str):
                 embedding = eval(embedding)
             if len(embedding) != 3072:
@@ -93,8 +93,8 @@ def process_csv_file(file_path, conn):
                 continue
 
             data.append((
-                row['file_name'], row['page'], row['chunk_num'], row['text'],
-                row['model'], row['prompt_tokens'], row['total_tokens'], row['timestamp'],
+                row['file_name'], row['document_page'], row['chunk_no'], row['text'],
+                row['model'], row['prompt_tokens'], row['total_tokens'], row['created_date_time'],
                 embedding
             ))
 
