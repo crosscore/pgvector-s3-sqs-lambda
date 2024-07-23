@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import execute_batch
 from config import *
 from langchain_text_splitters import CharacterTextSplitter
-from datetime import datetime, timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from contextlib import contextmanager
 
