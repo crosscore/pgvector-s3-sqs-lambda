@@ -18,7 +18,6 @@ mkdir -p $PACKAGE_DIR
 python3 -m venv venv
 source venv/bin/activate
 
-# 必要なライブラリをインストール
 echo "Installing dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt -t $PACKAGE_DIR
