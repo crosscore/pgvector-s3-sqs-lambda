@@ -26,9 +26,9 @@ LOCAL_UPLOAD_PATH = os.getenv("LOCAL_UPLOAD_PATH")
 LOCAL_DOWNLOAD_PATH = os.getenv("LOCAL_DOWNLOAD_PATH")
 
 # PDF処理設定
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 0))
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 1000))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
-SEPARATOR = os.getenv("SEPARATOR", "\n")
+SEPARATOR = os.getenv("SEPARATOR", "\n\n")
 PDF_INPUT_DIR = os.getenv("PDF_INPUT_DIR", '/app/data/pdf')
 CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", '/app/data/csv')
 

@@ -1,5 +1,6 @@
 openai==1.35.14
 langchain-text-splitters==0.2.2
 python-dotenv
+boto3
 pypdf
 psycopg2-binary
