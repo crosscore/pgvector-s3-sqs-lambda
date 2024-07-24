@@ -9,7 +9,7 @@ from config import S3_BUCKET_NAME, SQS_QUEUE_URL, LOCAL_DOWNLOAD_PATH, DEAD_LETT
 
 MAX_RETRIES = 3
 BACKOFF_TIME = 5  # seconds
-VISIBILITY_TIMEOUT = 300  # 5 minutes
+VISIBILITY_TIMEOUT = 30  # 30 seconds
 
 def calculate_file_hash(file_path):
     hash_md5 = hashlib.md5()
