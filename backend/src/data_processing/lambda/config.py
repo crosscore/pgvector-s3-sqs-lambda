@@ -30,8 +30,8 @@ LOCAL_DOWNLOAD_PATH = os.getenv("LOCAL_DOWNLOAD_PATH")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 1000))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 0))
 SEPARATOR = os.getenv("SEPARATOR", "\n\n")
-PDF_INPUT_DIR = os.getenv("PDF_INPUT_DIR", '/app/data/pdf')
-CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR", '/app/data/csv')
+PDF_INPUT_DIR = os.getenv("PDF_INPUT_DIR")
+CSV_OUTPUT_DIR = os.getenv("CSV_OUTPUT_DIR")
 
 # pgvector_db
 PGVECTOR_DB_NAME = os.getenv("PGVECTOR_DB_NAME")
@@ -49,5 +49,4 @@ IVFFLAT_LISTS = int(os.getenv("IVFFLAT_LISTS", "20"))
 IVFFLAT_PROBES = int(os.getenv("IVFFLAT_PROBES", "5"))
 
 # その他の設定
-RUN_MODE = os.getenv("RUN_MODE", "test_pdf_download")
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))
