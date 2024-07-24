@@ -13,7 +13,7 @@ mkdir -p $PACKAGE_DIR
 pip install -r requirements.txt -t $PACKAGE_DIR
 
 # Lambda関数のコードをコピー
-cp main.py s3_downloader.py pdf_vectorizer.py config.py .env $PACKAGE_DIR/
+cp lambda_function.py s3_downloader.py pdf_vectorizer.py config.py .env $PACKAGE_DIR/
 
 # Zipアーカイブを作成
 cd $PACKAGE_DIR
