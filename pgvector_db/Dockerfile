@@ -26,5 +26,8 @@ RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc && \
 
 RUN echo "CREATE EXTENSION IF NOT EXISTS vector;" > /docker-entrypoint-initdb.d/10-create-extension.sql
 
-# PostgreSQLの設定ファイルにタイムゾーン設定を追加
-RUN echo "timezone = 'Asia/Tokyo'" >> /usr/share/postgresql/postgresql.conf.sample
+# カスタムpostgresql.confファイルをコピー
+COPY postgresql.conf /etc/postgresql/postgresql.conf
+
+# PostgreSQLの起動コマンドを変更して、カスタム設定ファイルを使用
+CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]

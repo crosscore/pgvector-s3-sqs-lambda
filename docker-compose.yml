@@ -7,6 +7,7 @@ services:
       - .env
     environment:
       - PYTHONPATH=/app:${PYTHONPATH:-}
+      - TZ=Asia/Tokyo
     volumes:
       - ./backend:/app
     depends_on:
@@ -22,12 +23,15 @@ services:
       - POSTGRES_DB=${PGVECTOR_DB_NAME}
       - POSTGRES_USER=${PGVECTOR_DB_USER}
       - POSTGRES_PASSWORD=${PGVECTOR_DB_PASSWORD}
+      - TZ=Asia/Tokyo
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./pgvector_db/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - "5432:5432"
     networks:
       - app_network
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
 networks:
   app_network:
