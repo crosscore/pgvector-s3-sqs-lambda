@@ -59,3 +59,65 @@ ls -lh lambda_function.zip
 - 使用していないライブラリがあれば削除。
 - psycopg2-binaryの代わりにpsycopg2を使用し、必要な共有ライブラリを手動でパッケージ化。
 - 大きなライブラリ（例：openai）を個別のLambdaレイヤーとしてデプロイ。
+
+
+
+An error occurred (InvalidClientTokenId) when calling the GetQueueAttributes operation: The security token included in the request is invalid. の解決策：
+
+1. 認証情報の期限切れ：
+   アクセスキーとシークレットキーが期限切れになっている可能性があります。IAMコンソールで現在の認証情報の状態を確認し、必要であれば新しいキーペアを生成してください。
+
+2. 認証情報の不一致：
+   `~/.aws/credentials` ファイルの認証情報が、実際のAWSアカウントと一致していない可能性があります。ファイルの内容を確認し、必要であれば更新してください。
+
+3. リージョンの不一致：
+   コマンドで指定しているキューのURLと、設定されているリージョンが一致していることを確認してください。
+
+4. IAMユーザーの権限：
+   使用しているIAMユーザーがSQSの操作に必要な権限を持っていることを確認してください。
+
+5. AWSCLIのバージョン：
+   AWS CLIが最新版であることを確認してください。古いバージョンを使用している場合、認証に問題が生じる可能性があります。
+
+6. 時計の同期：
+   ローカルマシンの時計がAWSのサーバー時間と大きくずれていないか確認してください。
+
+解決のためのステップ：
+1. AWS認証情報の再設定：
+   ```
+   aws configure
+   ```
+   このコマンドを実行し、アクセスキーID、シークレットアクセスキー、デフォルトリージョンを再入力してください。
+
+2. 認証情報の確認：
+   ```
+   aws sts get-caller-identity
+   ```
+   このコマンドを実行して、現在の認証情報が有効であることを確認してください。
+
+3. SQSへのアクセス確認：
+   ```
+   aws sqs list-queues
+   ```
+   このコマンドでSQSキューのリストが取得できるか確認してください。
+
+これらの手順を試してみて、問題が解決しない場合は、IAMユーザーの権限設定やAWSアカウントの状態を詳細に確認する必要があるかもしれません。その場合は、さらに詳しい情報を提供していただければ、より具体的なアドバイスができます。
+
+
+# AWS SQS
+aws sqs receive-message --queue-url <YourQueueURL>
+
+ARNの確認コマンド:
+aws sqs get-queue-attributes --queue-url <デッドレターキューのURL> --attribute-names QueueArn
+
+ARNの構造:
+arn:aws:sqs:<リージョン>:<アカウントID>:<キュー名>
+
+DeadQueueが設定されていることの確認コマンド：
+aws sqs get-queue-attributes --queue-url <キューのURL> --attribute-names RedrivePolicy
+
+{
+    "Attributes": {
+        "RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:ap-northeast-1:524000000000:my-test-pdf-deadqueue.fifo\",\"maxReceiveCount\":30}"
+    }
+}
