@@ -1,14 +1,18 @@
 # main.py
 import json
-import logging
 from s3_downloader import process_sqs_message
 from pdf_vectorizer import process_pdf_and_insert
 import os
+import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def lambda_handler(event, context):
+    jst_time = datetime.now(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M:%S %Z')
+    logger.info(f"Function started at {jst_time}")
     try:
         # S3からPDFをダウンロード
         local_file_path = process_sqs_message()

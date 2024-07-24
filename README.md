@@ -121,3 +121,25 @@ aws sqs get-queue-attributes --queue-url <キューのURL> --attribute-names Red
         "RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:ap-northeast-1:524000000000:my-test-pdf-deadqueue.fifo\",\"maxReceiveCount\":30}"
     }
 }
+
+```
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "ap-northeast-1",
+      "eventTime": "2023-04-01T12:00:00.000Z",
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "bucket": {
+          "name": "my-test-pdf-bucket"
+        },
+        "object": {
+          "key": "test2.pdf"
+        }
+      }
+    }
+  ]
+}
+```
