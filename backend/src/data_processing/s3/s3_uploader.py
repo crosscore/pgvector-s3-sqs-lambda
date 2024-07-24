@@ -29,18 +29,18 @@ def upload_pdfs_and_send_messages():
         if filename.lower().endswith('.pdf'):
             file_path = os.path.join(LOCAL_UPLOAD_PATH, filename)
             if upload_file(file_path, S3_BUCKET_NAME, filename):
-                pass # SQSを利用しない
-                # message_body = {
-                #     "Records": [
-                #         {
-                #             "s3": {
-                #                 "bucket": {"name": S3_BUCKET_NAME},
-                #                 "object": {"key": filename}
-                #             }
-                #         }
-                #     ]
-                # }
-                # send_sqs_message(SQS_QUEUE_URL, message_body)
+                #pass # SQSを利用しない
+                message_body = {
+                    "Records": [
+                        {
+                            "s3": {
+                                "bucket": {"name": S3_BUCKET_NAME},
+                                "object": {"key": filename}
+                            }
+                        }
+                    ]
+                }
+                send_sqs_message(SQS_QUEUE_URL, message_body)
 
 if __name__ == "__main__":
     print("Uploading PDFs and sending SQS messages...")
